@@ -1346,6 +1346,12 @@ postgresql:
     database: tuist
     username: tuist
     password: tuist
+    existingSecret: ""
+    existingSecretKeys:
+      host: endpoint
+      port: port
+      username: username
+      password: password
   embedded:
     image:
       repository: postgres

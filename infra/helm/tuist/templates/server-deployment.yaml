@@ -95,8 +95,28 @@ spec:
             {{- end }}
             {{- if not .Values.server.managedSecrets }}
             {{- if ne .Values.postgresql.mode "cnpg" }}
+            {{- if and (eq .Values.postgresql.mode "external") .Values.postgresql.external.existingSecret }}
+            - name: TUIST_PG_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.postgresql.external.existingSecret }}
+                  key: {{ .Values.postgresql.external.existingSecretKeys.host }}
+            - name: TUIST_PG_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.postgresql.external.existingSecret }}
+                  key: {{ .Values.postgresql.external.existingSecretKeys.username }}
+            - name: TUIST_PG_PASS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.postgresql.external.existingSecret }}
+                  key: {{ .Values.postgresql.external.existingSecretKeys.password }}
+            - name: DATABASE_URL
+              value: "ecto://$(TUIST_PG_USER):$(TUIST_PG_PASS)@$(TUIST_PG_HOST):{{ .Values.postgresql.external.port }}/{{ .Values.postgresql.external.database }}"
+            {{- else }}
             - name: DATABASE_URL
               value: {{ include "tuist.databaseUrl" . | quote }}
+            {{- end }}
             - name: TUIST_USE_SSL_FOR_DATABASE
               value: {{ .Values.server.database.ssl | ternary "1" "0" | quote }}
             {{- end }}
